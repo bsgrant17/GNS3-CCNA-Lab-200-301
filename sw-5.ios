@@ -1,0 +1,108 @@
+! Enter enable mode and then configuration mode
+en
+conf t
+
+! Basic Configuration
+hostname SW-5
+ip domain-name cisco.lab
+aaa new-model
+aaa authentication login default local
+username admin secret cisco
+crypto key gen rsa mod 2048
+lldp run
+banner motd # Cisco CCNA Lab, Authorized Users Only! #
+
+! Create Access List for Remote Management
+access-list 1 remark Management IPs
+access-list 1 permit 172.16.10.0 0.0.0.255
+access-list 1 permit 10.0.0.0 0.0.0.255
+access-list 1 deny any
+
+! Configure VLANs
+vlan 10
+    name IT
+vlan 11
+    name IT VOIP
+vlan 20
+    name HR
+vlan 21
+    name HR VOIP
+vlan 30
+    name Employees
+vlan 31
+    name Employees VOIP
+vlan 40
+    name Guests
+
+! Configure VTP
+vtp domain cisco.lab
+vtp ver 2
+
+
+! Configure console and vty lines
+line con 0
+    loggin sync
+line vty 0
+    loggin sync
+    access-class 1 in
+    transport input ssh
+
+! Configure EtherChannel Port-Channel
+int po1
+    switchport trunk encap dot1
+    switchport trunk allowed vlan all
+    switchport mode trunk
+    switchport nonego
+    span link point
+
+! Configure interfaces
+int range gi0/0-1
+    no nego auto
+    speed 1000
+    duplex full
+    switchport trunk encap dot1
+    switchport trunk allowed vlan all
+    switchport mode trunk
+    switchport nonego
+
+int range gi2/0-3
+    no nego auto
+    speed 1000
+    duplex full
+    switchport trunk encap dot1
+    switchport trunk allowed vlan all
+    switchport mode trunk
+    switchport nonego
+    span link point
+    channel-group 1 mode active
+
+int gi3/0
+    no nego auto
+    speed 1000
+    duplex full
+    switchport trunk encap dot1
+    switchport trunk allowed vlan 10-21
+    switchport mode trunk
+    switchport nonego
+    span link point
+
+int gi3/1
+    no nego auto
+    speed 1000
+    duplex full
+    switchport trunk encap dot1
+    switchport trunk allowed vlan 30-40
+    switchport mode trunk
+    switchport nonego
+    span link point
+
+! Configure Spanning-Tree
+    spanning-tree mode rapid-pvst
+    spanning-tree vlan 10-21 root primary
+    spanning-tree vlan 30-40 root secondary
+    
+! Exit configuration mode and save
+exit
+exit
+copy run start
+

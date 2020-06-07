@@ -1,0 +1,61 @@
+! Enter enable mode and then configuration mode
+en
+conf t
+
+! Basic Configuration
+hostname SW-4
+ip domain-name cisco.lab
+aaa new-model
+aaa authentication login default local
+username admin secret cisco
+crypto key gen rsa mod 2048
+lldp run
+banner motd # Cisco CCNA Lab, Authorized Users Only! #
+
+! Create Access List for Remote Management
+access-list 1 remark Management IPs
+access-list 1 permit 172.16.10.0 0.0.0.255
+access-list 1 permit 10.0.0.0 0.0.0.255
+access-list 1 deny any
+
+! Configure VTP
+vtp mode client
+
+! Configure console and vty lines
+line con 0
+    loggin sync
+line vty 0
+    loggin sync
+    access-class 1 in
+    transport input ssh
+
+! Configure interfaces
+int gi3/0
+    no nego auto
+    speed 1000
+    duplex full
+    switchport trunk encap dot1
+    switchport trunk allowed vlan 30-40
+    switchport mode trunk
+    span link point
+
+int range gi0/0-3
+    switchport access vlan 30
+    switchport voice vlan 31
+    switchport mode access
+    switchport nonego
+    span portfast edge
+    bpduguard enable
+
+int range gi1/0-3
+    switchport access vlan 40
+    switchport mode access
+    switchport nonego
+    span portfast edge
+    bpduguard enable
+
+! Exit configuration mode and save
+exit
+exit
+copy run start
+
