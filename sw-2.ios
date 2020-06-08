@@ -5,6 +5,7 @@ conf t
 ! Basic Configuration
 hostname SW-2
 ip domain-name cisco.lab
+no ip domain-lookup
 aaa new-model
 aaa authentication login default local
 username admin secret cisco
@@ -46,14 +47,14 @@ int range gi0/0-3
     switchport mode access
     switchport nonego
     span portfast edge
-    bpduguard enable
+    span bpduguard enable
 
 int range gi1/0-3
     switchport access vlan 40
     switchport mode access
     switchport nonego
     span portfast edge
-    bpduguard enable
+    span bpduguard enable
 
 ! Exit configuration mode and save
 exit

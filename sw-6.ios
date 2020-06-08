@@ -5,6 +5,7 @@ conf t
 ! Basic Configuration
 hostname SW-6
 ip domain-name cisco.lab
+no ip domain-lookup
 aaa new-model
 aaa authentication login default local
 username admin secret cisco
